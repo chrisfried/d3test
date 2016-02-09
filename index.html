@@ -3,33 +3,107 @@
   <head>
     <meta charset="utf-8">
     <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #313236;
+        overflow: hidden;
+      }
 
-    .link {
-      fill: none;
-      stroke: #bbb;
-    }
+      .link {
+        fill: none;
+        stroke: #bbb;
+      }
 
-    .node text {
-      pointer-events: none;
-      font: 10px sans-serif;
-    }
-    
-    svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100% !important;
-      height: 100% !important;
-    }
-
+      .node text {
+        pointer-events: none;
+        font: 10px sans-serif;
+      }
+      
+      svg {
+        position: absolute;
+        top: 96px;
+        left: 230px;
+        right: 0;
+        bottom: 0;
+        width: 100% !important;
+        height: 100% !important;
+        background: white;
+      }
+      
+      .header {
+        height: 96px;
+        width: 100%;
+        background: url('/images/headerBg.png');
+      }
+      .header-left {
+        height: 96px;
+        width: 185px;
+        background: url('/images/headerLeft.png');
+        float: left;
+      }
+      .header-right {
+        height: 96px;
+        width: 352px;
+        background: url('/images/headerRight.png');
+        float: right;
+      }
+      
+      .sidebar {
+        background-color: #313236;
+        background-repeat: none;
+        background-image: url('/images/sidebar.png');
+        width: 230px;
+        height: 592px;
+        padding: 86px 0 0;
+      }
+      .sidebar-button {
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 70px;
+        height: 70px;
+        display: inline-block;
+        font-family: sans-serif;
+        color: #c8cbd4;
+        font-size: 10px;
+        line-height: 120px;
+        text-align: center;
+      }
+      .sb1 {
+        background-image: url('/images/icon1.png');
+      }
+      .sb2 {
+        background-image: url('/images/icon2.png');
+      }
+      .sb3{
+        background-image: url('/images/icon3.png');
+      }
     </style>
     <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
   </head>
   <body>
+    <div class="header">
+      <div class="header-left"></div>
+      <div class="header-right"></div>
+    </div>
+    <div class="sidebar">
+      <span draggable="true" ondragend="itemDropped('icon1.png')" class="sidebar-button sb1">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon2.png')" class="sidebar-button sb2">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon3.png')" class="sidebar-button sb3">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon1.png')" class="sidebar-button sb1">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon2.png')" class="sidebar-button sb2">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon3.png')" class="sidebar-button sb3">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon1.png')" class="sidebar-button sb1">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon2.png')" class="sidebar-button sb2">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon3.png')" class="sidebar-button sb3">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon1.png')" class="sidebar-button sb1">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon2.png')" class="sidebar-button sb2">Node Name</span>
+      <span draggable="true" ondragend="itemDropped('icon3.png')" class="sidebar-button sb3">Node Name</span>
+    </div>
+    <div class="d3"></div>
     <script>
-      var width = 960,
+      var itemDropped;
+      var width = 100,
           height = 500;
 
       var force = d3.layout.force()
@@ -54,57 +128,79 @@
 
       d3.json("data.json", function(error, json) {
         if (error) throw error;
-
-        force
+        var update = function() {
+          force
             .nodes(json.nodes)
             .links(json.links)
             .start();
 
-        var link = svg.selectAll(".link")
-            .data(json.links)
-          .enter().append("path")
-            .attr("class", "link")
-            .attr("marker-end", "url(#end)")
-            .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+          var link = svg.selectAll(".link")
+              .data(json.links)
+            .enter().append("path")
+              .attr("class", "link")
+              .attr("marker-end", "url(#end)")
+              .style("stroke-width", function(d) { return Math.sqrt(d.value); });
 
-        var node = svg.selectAll(".node")
-            .data(json.nodes)
-          .enter().append("g")
-            .attr("class", "node")
-            .call(force.drag);
+          var node = svg.selectAll(".node")
+              .data(json.nodes)
+            .enter().append("g")
+              .attr("class", "node")
+              .call(force.drag);
 
-        node.append("image")
-            .attr("xlink:href", function(d) { return 'images/' + d.image; })
-            .attr("x", -12)
-            .attr("y", -12)
-            .attr("width", 24)
-            .attr("height", 24);
+          node.append("image")
+              .attr("xlink:href", function(d) { return 'images/' + d.image; })
+              .attr("x", -12)
+              .attr("y", -12)
+              .attr("width", 24)
+              .attr("height", 24);
 
-        node.append("title")
-            .text(function(d) { return d.name; });
-            
-        node.append("text")
-            .attr("dx", -12)
-            .attr("dy", 27)
-            .text(function(d) { return d.name });
+          node.append("title")
+              .text(function(d) { return d.name; });
+              
+          node.append("text")
+              .attr("dx", -12)
+              .attr("dy", 27)
+              .text(function(d) { return d.name });
 
-        force.on("tick", function() {
-          link.attr("d", function(d) {
-            if (d.x) {
-              return "M" + d.source.x + "," + d.source.y
-                  + "L" + d.target.x + "," + d.source.y
-                  + "L" + d.target.x + "," + d.target.y 
-            } else if (d.source.x == d.target.x) {
-              return "M" + d.source.x + "," + d.source.y
-                  + "L" + d.target.x + "," + d.target.y 
-            } else {
-              return "M" + d.source.x + "," + d.source.y
-                  + "L" + d.source.x + "," + d.target.y
-                  + "L" + d.target.x + "," + d.target.y 
-            }
+          force.on("tick", function() {
+            link.attr("d", function(d) {
+              if (d.x) {
+                return "M" + d.source.x + "," + d.source.y
+                    + "L" + d.target.x + "," + d.source.y
+                    + "L" + d.target.x + "," + d.target.y 
+              } else if (d.source.x == d.target.x) {
+                return "M" + d.source.x + "," + d.source.y
+                    + "L" + d.target.x + "," + d.target.y 
+              } else {
+                return "M" + d.source.x + "," + d.source.y
+                    + "L" + d.source.x + "," + d.target.y
+                    + "L" + d.target.x + "," + d.target.y 
+              }
+            });
+            node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
           });
-          node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-        });
+        }
+        
+        update();
+        
+        var zoom = d3.behavior.zoom();
+        d3.select("svg").call(zoom);
+        
+        itemDropped = function(image) {
+          var coordinates = [50, 50];
+          var x = event.clientX - 195;
+          var y = event.clientY - 131;
+          var node = 
+            {
+              "name": "New Node",
+              "image": image,
+              "fixed": true,
+              "x": x,
+              "y": y
+            };
+          json.nodes.push(node);
+          update();
+        }
       });
     </script>
   </body>
