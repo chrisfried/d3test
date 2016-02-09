@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+
+    .link {
+      fill: none;
+      stroke: #bbb;
+    }
+
+    .node text {
+      pointer-events: none;
+      font: 10px sans-serif;
+    }
+    
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    </style>
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <script>
+      var width = 960,
+          height = 500;
+
+      var force = d3.layout.force()
+          .size([width, height]);
+
+      var svg = d3.select("body").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      svg.append("svg:defs").selectAll("marker")
+          .data(["end"])      // Different link/path types can be defined here
+        .enter().append("svg:marker")    // This section adds in the arrows
+          .attr("id", String)
+          .attr("viewBox", "0 -5 10 10")
+          .attr("refX", 33)
+          .attr("refY", 0)
+          .attr("markerWidth", 5)
+          .attr("markerHeight", 5)
+          .attr("orient", "auto")
+        .append("svg:path")
+          .attr("d", "M0,-5L10,0L0,5");
+
+      d3.json("data.json", function(error, json) {
+        if (error) throw error;
+
+        force
+            .nodes(json.nodes)
+            .links(json.links)
+            .start();
+
+        var link = svg.selectAll(".link")
+            .data(json.links)
+          .enter().append("path")
+            .attr("class", "link")
+            .attr("marker-end", "url(#end)")
+            .style("stroke-width", function(d) { return Math.sqrt(d.value); });
+
+        var node = svg.selectAll(".node")
+            .data(json.nodes)
+          .enter().append("g")
+            .attr("class", "node")
+            .call(force.drag);
+
+        node.append("image")
+            .attr("xlink:href", function(d) { return 'images/' + d.image; })
+            .attr("x", -12)
+            .attr("y", -12)
+            .attr("width", 24)
+            .attr("height", 24);
+
+        node.append("title")
+            .text(function(d) { return d.name; });
+            
+        node.append("text")
+            .attr("dx", -12)
+            .attr("dy", 27)
+            .text(function(d) { return d.name });
+
+        force.on("tick", function() {
+          link.attr("d", function(d) {
+            if (d.x) {
+              return "M" + d.source.x + "," + d.source.y
+                  + "L" + d.target.x + "," + d.source.y
+                  + "L" + d.target.x + "," + d.target.y 
+            } else if (d.source.x == d.target.x) {
+              return "M" + d.source.x + "," + d.source.y
+                  + "L" + d.target.x + "," + d.target.y 
+            } else {
+              return "M" + d.source.x + "," + d.source.y
+                  + "L" + d.source.x + "," + d.target.y
+                  + "L" + d.target.x + "," + d.target.y 
+            }
+          });
+          node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        });
+      });
+    </script>
+  </body>
+</html>
